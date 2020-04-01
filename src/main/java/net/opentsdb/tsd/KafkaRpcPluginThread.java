@@ -282,7 +282,11 @@ public class KafkaRpcPluginThread extends Thread {
                 cumulativeRateDelay.addAndGet(waiting);
                 datapointsReceived.addAndGet(eventList.size());
                 for (TypedIncomingData ev : eventList) {
-                  ev.processData(this, recvTime);
+                  try {
+                    ev.processData(this, recvTime);
+                  } catch(IllegalArgumentException e) {
+                    LOG.error("Could not add event {}, skipping. Error: {}", ev.toString(), e);
+                  }
                 }
                 break;
               case REQUEUE_RAW:
